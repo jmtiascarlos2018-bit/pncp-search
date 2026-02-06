@@ -8,9 +8,9 @@
 .empty {
     text-align: center;
     padding: 3rem;
-    background: #f8f9fa;
+    background: var(--surface);
     border-radius: 8px;
-    color: #6c757d;
+    color: var(--text-light);
     font-size: 1.1rem;
     margin-top: 2rem;
 }

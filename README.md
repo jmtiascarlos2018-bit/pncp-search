@@ -5,7 +5,7 @@ Sistema web para consulta de licitações públicas utilizando a API oficial do 
 ## Tecnologias
 - **Frontend**: React (Vite)
 - **Backend**: Node.js (Express)
-- **API**: PNCP (Portal Nacional de Contratações Públicas)
+- **APIs**: PNCP + Portal da Transparência + Compras.gov.br (Dados Abertos)
 
 ## Pré-requisitos
 - Node.js instalado (v14+ recomendado)
@@ -36,4 +36,13 @@ Acesse no navegador: `http://localhost:5173`.
 3. Clique em "Buscar".
 4. Visualize os resultados e clique em "Ver no PNCP" para detalhes completos.
 
-**Nota**: Devido a características da API pública, a busca textual é aplicada sobre as licitações mais recentes (últimos 90 dias, modalidade Pregão).
+**Nota**: Devido a características das APIs públicas, a busca textual é aplicada sobre as licitações mais recentes. O backend agrega PNCP + Portal da Transparência (quando a chave está configurada) + Compras.gov.br.
+
+## Variáveis de ambiente (Frontend)
+
+- Para apontar o frontend a um backend diferente, defina `VITE_API_URL` no `.env` da pasta `frontend` (ex.: `VITE_API_URL=https://meu-backend.com`). O valor será normalizado e o sufixo `/api` será adicionado automaticamente.
+- No backend, configure `GEMINI_API_KEY` no `.env` para permitir uso do serviço generativo (se aplicável).
+- Para integrar o Portal da Transparência, configure `PORTAL_TRANSPARENCIA_API_KEY` (chave de acesso da API de dados) e, se necessário, ajuste `PORTAL_TRANSPARENCIA_LICITACOES_URL`.
+- Para configurar a busca no Compras.gov.br, ajuste `COMPRAS_GOV_LICITACOES_URL` e limites de paginação/timeout conforme necessidade (não requer chave).
+- Para alertas por e-mail, configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` e `SMTP_FROM`.
+- Para executar os alertas de forma segura, configure `ALERTS_RUN_TOKEN` e chame `POST /api/alerts/run` com o header `x-alert-token`.

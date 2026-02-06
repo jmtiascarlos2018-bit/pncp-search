@@ -103,7 +103,10 @@ const pncpService = {
                     municipio: item.unidadeOrcamentaria?.municipioNome || 'N/A',
                     modalidade: item.modalidadeContratacaoNome || 'N/A',
                     dataPublicacao: item.dataPublicacaoPncp,
-                    link: `https://pncp.gov.br/app/editais/${cnpj}/${ano}/${sequencial}`
+                    link: `https://pncp.gov.br/app/editais/${cnpj}/${ano}/${sequencial}`,
+                    fonte: 'PNCP',
+                    source: 'pncp',
+                    linkLabel: 'Ver no PNCP'
                 };
             });
 

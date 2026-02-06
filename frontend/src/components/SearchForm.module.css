@@ -13,32 +13,32 @@
 .inputGroup label {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #4a5568;
+    color: var(--text-light);
 }
 
 .input,
 .select {
     padding: 0.75rem 1rem;
-    border: 1px solid #cbd5e0;
+    border: 1px solid var(--border);
     border-radius: 6px;
     /* Updated from var(--radius-md) to hard value if var not imported, but CSS modules usually don't share vars easily without setup. Using local values or global vars if available. */
     font-size: 1rem;
     transition: all 0.2s ease;
-    background-color: white;
+    background-color: var(--surface-2);
+    color: var(--text-color);
     width: 100%;
 }
 
 .input:focus,
 .select:focus {
     outline: none;
-    border-color: #3182ce;
-    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
+    border-color: rgba(57, 240, 200, 0.6);
+    box-shadow: 0 0 0 3px rgba(57, 240, 200, 0.15);
 }
 
 .button {
-    background-color: #0c326f;
-    /* var(--primary-color) */
-    color: white;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #061018;
     padding: 0.85rem 1.5rem;
     border: none;
     border-radius: 6px;
@@ -52,15 +52,23 @@
 }
 
 .button:hover:not(:disabled) {
-    background-color: #1351b4;
+    filter: brightness(1.05);
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 14px rgba(9, 12, 24, 0.35);
 }
 
 .button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
     transform: none;
+}
+
+.checkboxRow {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-light);
 }
 
 /* Responsive adjustments */

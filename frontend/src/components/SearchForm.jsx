@@ -6,9 +6,11 @@ const UFS = [
     'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
 ];
 
-const SearchForm = ({ onSearch, isLoading }) => {
+const SearchForm = ({ onSearch, onSubscribe, isLoading }) => {
     const [niche, setNiche] = useState('');
     const [uf, setUf] = useState('');
+    const [email, setEmail] = useState('');
+    const [receiveAlerts, setReceiveAlerts] = useState(false);
 
     // Default to last 30 days
     const today = new Date().toISOString().split('T')[0];
@@ -19,6 +21,9 @@ const SearchForm = ({ onSearch, isLoading }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (receiveAlerts && onSubscribe) {
+            onSubscribe({ email, q: niche, uf });
+        }
         onSearch({ niche, uf, dateStart, dateEnd });
     };
 
@@ -75,6 +80,26 @@ const SearchForm = ({ onSearch, isLoading }) => {
                         <option key={state} value={state}>{state}</option>
                     ))}
                 </select>
+            </div>
+
+            <div className={styles.inputGroup}>
+                <label htmlFor="email">E-mail para alertas (opcional)</label>
+                <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="voce@exemplo.com"
+                    className={styles.input}
+                />
+                <label className={styles.checkboxRow}>
+                    <input
+                        type="checkbox"
+                        checked={receiveAlerts}
+                        onChange={(e) => setReceiveAlerts(e.target.checked)}
+                    />
+                    Quero receber alertas de novas licitações
+                </label>
             </div>
 
             <button type="submit" disabled={isLoading} className={styles.button}>
