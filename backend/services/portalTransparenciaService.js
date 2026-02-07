@@ -2,7 +2,8 @@ const axios = require('axios');
 
 const DEFAULT_BASE_URL = 'https://api.portaldatransparencia.gov.br/api-de-dados/licitacoes';
 const BASE_URL = process.env.PORTAL_TRANSPARENCIA_LICITACOES_URL || DEFAULT_BASE_URL;
-const API_KEY = process.env.PORTAL_TRANSPARENCIA_API_KEY;
+// Fallback key provided by user for "compras governamentais" (Portal da Transparência matches chave-api-dados)
+const API_KEY = process.env.PORTAL_TRANSPARENCIA_API_KEY || '2d56e224c48183a794e0c0642df64f62';
 
 const MAX_PAGES = Number(process.env.PORTAL_TRANSPARENCIA_PAGES || 3);
 const CONCURRENT_LIMIT = Number(process.env.PORTAL_TRANSPARENCIA_CONCURRENCY || 3);
