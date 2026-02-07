@@ -42,7 +42,10 @@ exports.analyze = async (req, res) => {
         res.json(analysisResult);
 
     } catch (error) {
-        console.error('Brain analyze error:', error);
-        res.status(500).json({ error: 'Erro interno ao processar inteligência.' });
+        console.error('Brain analyze error:', error.message);
+        if (error.message && error.message.includes('API Key')) {
+            console.error('CRITICAL: GEMINI_API_KEY is missing or invalid in environment variables.');
+        }
+        res.status(500).json({ error: 'Erro interno ao processar inteligência (Verifique os logs do servidor).' });
     }
 };
