@@ -1,8 +1,7 @@
 .card {
     background: var(--surface);
-    border-radius: 8px;
-    /* var(--radius-md) */
-    box-shadow: 0 10px 24px rgba(8, 12, 26, 0.35);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
     padding: 1.5rem;
     transition: all 0.2s ease;
     border: 1px solid var(--border);
@@ -13,9 +12,9 @@
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 34px rgba(8, 12, 26, 0.45);
-    border-color: rgba(57, 240, 200, 0.4);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-2);
 }
 
 .header {
@@ -28,15 +27,16 @@
 }
 
 .date {
-    background-color: rgba(57, 240, 200, 0.12);
+    background-color: var(--surface-2);
     color: var(--accent);
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.6rem;
     border-radius: 4px;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.8rem;
 }
 
 .uf {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-light);
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -46,9 +46,8 @@
     color: var(--text-color);
     font-size: 1.1rem;
     font-weight: 700;
-    line-height: 1.5;
+    line-height: 1.4;
     margin: 0;
-    /* Limit lines if title too long */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -71,17 +70,17 @@
 
 .label {
     font-weight: 600;
-    color: var(--text-light);
+    color: var(--text-color);
 }
 
 .linkButton {
     display: inline-block;
     text-align: center;
     background-color: transparent;
-    color: var(--text-color);
-    border: 1px solid rgba(57, 240, 200, 0.5);
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-md);
     text-decoration: none;
     font-weight: 600;
     transition: all 0.2s;
@@ -89,7 +88,9 @@
 }
 
 .linkButton:hover {
-    background-color: rgba(57, 240, 200, 0.12);
-    color: var(--text-color);
+    background-color: var(--accent);
+    color: white;
+    border-color: var(--accent);
     text-decoration: none;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }

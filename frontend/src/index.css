@@ -1,5 +1,38 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Modern Professional Light Theme */
+  --bg-color: #f8f9fc;
+  /* Very light gray/blue background */
+  --surface: #ffffff;
+  /* Pure white for cards */
+  --surface-2: #f1f5f9;
+  /* Light slate for inputs/secondary backgrounds */
+
+  --border: #e2e8f0;
+  /* Slate 200 for borders */
+
+  --text-color: #1e293b;
+  /* Slate 800 for main text (High Contrast) */
+  --text-light: #64748b;
+  /* Slate 500 for secondary text */
+
+  --accent: #2563eb;
+  /* Royal Blue for primary actions */
+  --accent-2: #0ea5e9;
+  /* Sky Blue for gradients/secondary */
+
+  --danger: #ef4444;
+  /* Red 500 */
+  --success: #10b981;
+  /* Emerald 500 */
+
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 }
@@ -8,4 +41,6 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
