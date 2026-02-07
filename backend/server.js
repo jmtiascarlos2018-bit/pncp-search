@@ -68,9 +68,14 @@ app.get('/api/debug/sources', async (req, res) => {
     // 2. Direct API Level Test (Network/Firewall/API Logic)
     let directApiTest = {};
     try {
-        // Reduced timeout to fail fast if blocked
+        // Reduced timeout to fail fast if blocked -> Increased to 30s to match service
         const testUrl = 'https://compras.dados.gov.br/licitacoes/v1/licitacoes.json?objeto=caneta&offset=0';
-        const rawRes = await axios.get(testUrl, { timeout: 10000 });
+        const rawRes = await axios.get(testUrl, {
+            timeout: 30000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
 
         let count = 0;
         if (rawRes.data && rawRes.data._embedded && rawRes.data._embedded.licitacoes) {

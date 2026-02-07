@@ -6,9 +6,15 @@ const API_KEY = process.env.PORTAL_TRANSPARENCIA_API_KEY;
 
 const MAX_PAGES = Number(process.env.PORTAL_TRANSPARENCIA_PAGES || 3);
 const CONCURRENT_LIMIT = Number(process.env.PORTAL_TRANSPARENCIA_CONCURRENCY || 3);
-const REQUEST_TIMEOUT = Number(process.env.PORTAL_TRANSPARENCIA_TIMEOUT_MS || 10000);
+const REQUEST_TIMEOUT = Number(process.env.PORTAL_TRANSPARENCIA_TIMEOUT_MS || 30000); // Increased to 30s
 
-const http = axios.create({ timeout: REQUEST_TIMEOUT });
+const http = axios.create({
+    timeout: REQUEST_TIMEOUT,
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json'
+    }
+});
 
 const normalizeText = (text) =>
     String(text || '')

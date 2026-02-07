@@ -5,10 +5,16 @@ const BASE_URL = process.env.COMPRAS_GOV_LICITACOES_URL || DEFAULT_BASE_URL;
 
 const MAX_PAGES = Number(process.env.COMPRAS_GOV_PAGES || 2);
 const CONCURRENT_LIMIT = Number(process.env.COMPRAS_GOV_CONCURRENCY || 2);
-const REQUEST_TIMEOUT = Number(process.env.COMPRAS_GOV_TIMEOUT_MS || 10000);
+const REQUEST_TIMEOUT = Number(process.env.COMPRAS_GOV_TIMEOUT_MS || 30000); // Increased to 30s
 const PAGE_SIZE = Number(process.env.COMPRAS_GOV_PAGE_SIZE || 500);
 
-const http = axios.create({ timeout: REQUEST_TIMEOUT });
+const http = axios.create({
+    timeout: REQUEST_TIMEOUT,
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json'
+    }
+});
 
 const normalizeText = (text) =>
     String(text || '')
