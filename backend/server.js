@@ -11,12 +11,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 // Middleware
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'https://pncp-search-frontend.netlify.app', // Update if user has a different netlify URL
-        process.env.FRONTEND_URL // Allow custom env var
-    ],
+    origin: '*', // Allow all origins to rule out CORS specific issues
     credentials: true
 }));
 app.use(express.json());
@@ -27,19 +22,14 @@ app.use('/api/alerts', alertsRoutes);
 const brainController = require('./controllers/brainController');
 app.post('/api/analyze', brainController.analyze);
 
-// Serve frontend (Vite build) from the same host
-const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
-app.use(express.static(frontendDistPath));
-
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ message: 'PNCP Search API is running' });
 });
 
-// SPA fallback (serve index.html for non-API routes)
-app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(frontendDistPath, 'index.html'));
+// Root endpoint for Render Health Check
+app.get('/', (req, res) => {
+    res.send('API is Online (Backend Only)');
 });
 
 // Error handling middleware
