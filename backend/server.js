@@ -121,12 +121,14 @@ app.get('/api/debug/sources', async (req, res) => {
 
 // System Status Endpoint (for debugging integrations)
 app.get('/api/status', (req, res) => {
+    const ptKey = process.env.PORTAL_TRANSPARENCIA_API_KEY || '2d56e224c48183a794e0c0642df64f62';
+
     res.json({
-        ai: !!process.env.GEMINI_API_KEY,
-        sources: {
-            pncp: true,
-            portal_transparencia: !!process.env.PORTAL_TRANSPARENCIA_API_KEY,
-            compras_gov: true
+        services: {
+            pncp: 'ok',
+            portal_transparencia: ptKey ? 'ok' : 'error',
+            compras_gov: 'ok',
+            gemini: process.env.GEMINI_API_KEY ? 'ok' : 'error'
         },
         env: process.env.NODE_ENV || 'development'
     });
