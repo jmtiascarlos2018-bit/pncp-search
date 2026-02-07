@@ -46,3 +46,6 @@ Acesse no navegador: `http://localhost:5173`.
 - Para configurar a busca no Compras.gov.br, ajuste `COMPRAS_GOV_LICITACOES_URL` e limites de paginação/timeout conforme necessidade (não requer chave).
 - Para alertas por e-mail, configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` e `SMTP_FROM`.
 - Para executar os alertas de forma segura, configure `ALERTS_RUN_TOKEN` e chame `POST /api/alerts/run` com o header `x-alert-token`.
+
+## Deploy
+Para atualizar o frontend no Netlify ou backend no Render, basta fazer um push para a branch `main`.
