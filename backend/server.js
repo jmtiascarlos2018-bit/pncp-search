@@ -45,23 +45,54 @@ app.get('/api/debug/ai', async (req, res) => {
 
 // Debug endpoint for Search Sources
 app.get('/api/debug/sources', async (req, res) => {
+    // Requires axios to be available in scope or require it here if not global (it is global in this file now? verify)
+    // server.js usually doesn't have axios, let's require it to be safe.
+    const axios = require('axios');
     const portalTransparenciaService = require('./services/portalTransparenciaService');
     const comprasGovService = require('./services/comprasGovService');
 
     const ptKeyPresent = !!process.env.PORTAL_TRANSPARENCIA_API_KEY;
 
-    // Test fetch to Compras.gov (simple query)
-    let comprasGovStatus = 'unknown';
-    let comprasGovData = null;
+    // 1. Service Level Test (Application Logic)
+    let serviceTest = {};
     try {
-        const result = await comprasGovService.searchTenders({ q: 'caneta', page: 1 }); // Simple term
-        comprasGovStatus = result.data.length > 0 ? 'working' : 'empty_response';
-        comprasGovData = result.data.slice(0, 2);
+        const result = await comprasGovService.searchTenders({ q: 'caneta', page: 1 });
+        serviceTest = {
+            status: result.data.length > 0 ? 'working' : 'empty_response',
+            count: result.data.length
+        };
     } catch (e) {
-        comprasGovStatus = `error: ${e.message}`;
+        serviceTest = { status: 'error', message: e.message };
     }
 
-    // Test fetch to Portal Transparencia (if key present)
+    // 2. Direct API Level Test (Network/Firewall/API Logic)
+    let directApiTest = {};
+    try {
+        // Reduced timeout to fail fast if blocked
+        const testUrl = 'https://compras.dados.gov.br/licitacoes/v1/licitacoes.json?objeto=caneta&offset=0';
+        const rawRes = await axios.get(testUrl, { timeout: 10000 });
+
+        let count = 0;
+        if (rawRes.data && rawRes.data._embedded && rawRes.data._embedded.licitacoes) {
+            count = rawRes.data._embedded.licitacoes.length;
+        }
+
+        directApiTest = {
+            success: true,
+            status: rawRes.status,
+            data_keys: Object.keys(rawRes.data || {}),
+            item_count: count
+        };
+    } catch (err) {
+        directApiTest = {
+            success: false,
+            message: err.message,
+            status: err.response?.status,
+            statusText: err.response?.statusText
+        };
+    }
+
+    // Portal Transparencia Logic (unchanged)
     let ptStatus = 'skipped (no key)';
     if (ptKeyPresent) {
         try {
@@ -75,12 +106,12 @@ app.get('/api/debug/sources', async (req, res) => {
     res.json({
         portal_transparencia: {
             api_key_present: ptKeyPresent,
-            status: ptStatus
+            status: ptStatus,
+            instruction: !ptKeyPresent ? "Get key at https://portaldatransparencia.gov.br/api-de-dados/cadastrar" : "Key present"
         },
         compras_gov: {
-            api_key_required: false,
-            status: comprasGovStatus,
-            sample_data: comprasGovData
+            service_check: serviceTest,
+            direct_api_check: directApiTest
         }
     });
 });
