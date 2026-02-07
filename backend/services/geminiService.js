@@ -136,21 +136,30 @@ const analyzeBid = async (bidData, userProfile) => {
     try {
         const jsonResult = await analyzeWithFallback(prompt);
 
-        // Mapear campos novos para manter compatibilidade com frontend
+        // Mapear campos novos para manter compatibilidade com frontend (BrainAnalysis.jsx / AnalysisPage.jsx)
+        // O frontend espera: resumo_negocio, viabilidade_e_riscos, estrategia_sugerida, match_perfil.nota, match_perfil.o_que_falta
         return {
-            match_percent: jsonResult.match_perfil?.nota || 0,
-            summary: jsonResult.resumo_simples || "Sem resumo.",
-            missing_docs: jsonResult.match_perfil?.o_que_falta || [],
-            risks: [
-                ...(jsonResult.analise_financeira?.riscos_ocultos || []),
-                jsonResult.analise_financeira?.comentario_valores
-            ].filter(Boolean).join('. '),
-            strategy: [
+            match_perfil: {
+                nota: jsonResult.match_perfil?.nota || 0,
+                o_que_falta: jsonResult.match_perfil?.o_que_falta || []
+            },
+            resumo_negocio: jsonResult.resumo_simples || "Sem resumo disponível.",
+            nicho_identificado: jsonResult.analise_tecnica_objeto ? "Análise Técnica Realizada" : "",
+
+            // Combinar riscos e análise financeira em um texto único para o frontend
+            viabilidade_e_riscos: [
+                jsonResult.analise_financeira?.comentario_valores,
+                ...(jsonResult.analise_financeira?.riscos_ocultos || [])
+            ].filter(Boolean).join('. ') || "Nenhum risco crítico identificado.",
+
+            // Combinar estratégia e dicas
+            estrategia_sugerida: [
                 ...(jsonResult.estrategia_vencedora?.dicas_inteligentes || []),
-                `Ação: ${jsonResult.estrategia_vencedora?.acao_imediata || ''}`
-            ].join('\n'),
-            details: jsonResult.analise_tecnica_objeto || "",
-            raw_analysis: jsonResult
+                `Ação Recomendada: ${jsonResult.estrategia_vencedora?.acao_imediata || ''}`
+            ].join('\n\n'),
+
+            // Dados extras que podem ser usados se o frontend for atualizado no futuro
+            raw_data: jsonResult
         };
 
     } catch (error) {
