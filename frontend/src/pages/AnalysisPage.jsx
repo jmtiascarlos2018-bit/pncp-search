@@ -42,7 +42,6 @@ const AnalysisPage = () => {
     const scoreColor = score > 70 ? 'green' : score > 40 ? 'orange' : 'red';
 
     return (
-    return (
         <div className="app-container">
             <header className="app-header">
                 <div className="header-row">
