@@ -14,7 +14,26 @@ try {
     console.error("Error initializing Gemini:", error);
 }
 
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash-001';
+
+const listModels = async () => {
+    if (!genAI) {
+        throw new Error("Gemini not initialized (missing API Key).");
+    }
+    try {
+        // For google-generative-ai, we might need to use the model manager if available, 
+        // or just rely on the error message suggesting ListModels. 
+        // Actually the SDK doesn't always expose listModels directly on the main class in older versions,
+        // but let's try to access it via the API if possible or just return a static helpful message if not found.
+        // Checking documentation: genAI.getGenerativeModel is the main entry. 
+        // There isn't a direct listModels on GoogleGenerativeAI instance in some versions.
+        // Let's try to just return the configured model for now, but if we can, we should try to fetch.
+        // Since we can't easily list without the specific manager, let's just focus on the model change.
+        return { message: "Listing models requires specific API call not fully wrapper here yet." };
+    } catch (error) {
+        return { error: error.message };
+    }
+};
 
 const analyzeBid = async (bidData, userProfile) => {
     try {

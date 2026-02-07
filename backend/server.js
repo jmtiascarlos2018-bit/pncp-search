@@ -27,6 +27,14 @@ app.get('/api/health', (req, res) => {
     res.json({ message: 'PNCP Search API is running' });
 });
 
+// Debug endpoint to check configured AI Model
+app.get('/api/debug/ai', (req, res) => {
+    res.json({
+        configured_model: process.env.GEMINI_MODEL || 'gemini-1.5-flash-001',
+        api_key_present: !!process.env.GEMINI_API_KEY
+    });
+});
+
 // System Status Endpoint (for debugging integrations)
 app.get('/api/status', (req, res) => {
     res.json({
