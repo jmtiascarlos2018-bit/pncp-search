@@ -42,12 +42,12 @@ const AnalysisPage = () => {
     const scoreColor = score > 70 ? 'green' : score > 40 ? 'orange' : 'red';
 
     return (
+    return (
         <div className="app-container">
             <header className="app-header">
                 <div className="header-row">
                     <div className="brand">
-                        <h1>LicitaPro</h1>
-                        <p>Busca e Inteligência em Licitações Públicas</p>
+                        <h1>LicitaPro Brain</h1>
                     </div>
                     <nav className="nav-links">
                         <Link to="/" className="nav-link">Busca</Link>
@@ -59,45 +59,57 @@ const AnalysisPage = () => {
             <main className="app-main">
                 <div className="analysis-header">
                     <button onClick={() => navigate('/')} className="back-button">← Voltar</button>
-                    {bid?.objeto && <h2 className="analysis-title">{bid.objeto}</h2>}
+                    {bid?.objeto && <h2 className="result-title" style={{ fontSize: '1.25rem', marginTop: '1rem' }}>{bid.objeto}</h2>}
                 </div>
 
                 <section className="search-section">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '10px', marginBottom: '10px' }}>
-                        <h2 style={{ margin: 0, color: 'var(--text-color)' }}>🧠 Análise Inteligente</h2>
-                        <div style={{ textAlign: 'center' }}>
-                            <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-light)' }}>Compatibilidade</span>
-                            <span style={{ fontSize: '1.75rem', fontWeight: 'bold', color: scoreColor }}>{score}%</span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                        <div>
+                            <h2 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-main)' }}>Análise Inteligente</h2>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Powered by Gemini 2.0</span>
+                        </div>
+                        <div className="score-circle" style={{ borderColor: scoreColor }}>
+                            <span className="score-value" style={{ color: scoreColor }}>{score}%</span>
+                            <span style={{ fontSize: '0.6rem', textTransform: 'uppercase', fontWeight: '700', color: 'var(--text-secondary)' }}>Match</span>
                         </div>
                     </div>
 
-                    <div style={{ marginBottom: '10px' }}>
-                        <strong>Resumo:</strong> <p style={{ margin: '5px 0' }}>{analysis.resumo_negocio}</p>
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Resumo Executivo</h3>
+                        <p style={{ lineHeight: '1.6', fontSize: '0.95rem' }}>{analysis.resumo_negocio}</p>
                     </div>
 
                     {analysis.nicho_identificado && (
-                        <div style={{ marginBottom: '10px' }}>
-                            <span style={{ background: 'rgba(109, 211, 255, 0.12)', color: 'var(--accent-2)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.85rem' }}>
-                                {analysis.nicho_identificado}
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <span className="meta-tag" style={{ background: '#e0f2fe', color: '#0369a1', fontWeight: '600' }}>
+                                🎯 {analysis.nicho_identificado}
                             </span>
                         </div>
                     )}
 
                     {analysis.match_perfil?.o_que_falta?.length > 0 && (
-                        <div style={{ marginBottom: '10px', background: 'rgba(255, 107, 107, 0.12)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 107, 107, 0.35)' }}>
-                            <strong style={{ color: '#ffb3b3' }}>⚠️ Documentos Faltantes:</strong>
-                            <ul style={{ margin: '5px 0 0 20px', padding: 0, color: '#ffb3b3' }}>
-                                {analysis.match_perfil.o_que_falta.map((item, idx) => <li key={idx}>{item}</li>)}
+                        <div style={{ marginBottom: '1.5rem', background: '#fef2f2', padding: '1rem', borderRadius: '12px', border: '1px solid #fee2e2' }}>
+                            <strong style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '0.5rem' }}>
+                                ⚠️ Documentos Faltantes
+                            </strong>
+                            <ul style={{ margin: '0 0 0 1.25rem', padding: 0, color: '#b91c1c', fontSize: '0.9rem' }}>
+                                {analysis.match_perfil.o_que_falta.map((item, idx) => <li key={idx} style={{ marginBottom: '4px' }}>{item}</li>)}
                             </ul>
                         </div>
                     )}
 
-                    <div style={{ marginBottom: '10px' }}>
-                        <strong>Riscos:</strong> <p style={{ margin: '5px 0', fontSize: '0.95rem' }}>{analysis.viabilidade_e_riscos}</p>
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Viabilidade & Riscos</h3>
+                        <div style={{ background: '#fffbeb', padding: '1rem', borderRadius: '12px', border: '1px solid #fef3c7', fontSize: '0.95rem', color: '#92400e' }}>
+                            {analysis.viabilidade_e_riscos}
+                        </div>
                     </div>
 
-                    <div style={{ marginBottom: '15px' }}>
-                        <strong>Estratégia:</strong> <p style={{ margin: '5px 0', fontSize: '0.95rem', fontStyle: 'italic' }}>{analysis.estrategia_sugerida}</p>
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Estratégia Vencedora</h3>
+                        <div style={{ whiteSpace: 'pre-line', fontSize: '0.95rem', background: '#f0fdf4', padding: '1rem', borderRadius: '12px', border: '1px solid #bbf7d0', color: '#166534' }}>
+                            {analysis.estrategia_sugerida}
+                        </div>
                     </div>
 
                 </section>

@@ -50,35 +50,28 @@ const BrainAnalysis = ({ bidData }) => {
         return (
             <button
                 onClick={analyze}
-                style={{
-                    marginTop: '10px', background: 'linear-gradient(135deg, #39f0c8, #6dd3ff)',
-                    color: '#061018', padding: '8px 16px', border: 'none', borderRadius: '20px',
-                    cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px'
-                }}
+                className="action-btn btn-ai"
             >
-                ✨ Analisar com LicitaPro Brain
+                ✨ Analisar
             </button>
         );
     }
 
     if (loading) {
-        return <div style={{ color: '#6b21a8', fontStyle: 'italic', marginTop: '10px' }}>🤖 Analisando edital e cruzando com seu perfil...</div>;
+        return <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontStyle: 'italic', padding: '0.5rem' }}>🤖 Analisando...</div>;
     }
 
     if (error) {
-        return <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>;
+        return <div style={{ fontSize: '0.8rem', color: 'var(--error)', padding: '0.5rem' }}>Erro na análise</div>;
     }
 
     return (
         <button
             onClick={() => navigate('/analysis', { state: { analysis, bidData } })}
-            style={{
-                marginTop: '10px', background: 'linear-gradient(135deg, #39f0c8, #6dd3ff)',
-                color: '#061018', padding: '8px 16px', border: 'none', borderRadius: '20px',
-                cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px'
-            }}
+            className="action-btn btn-ai"
+            style={{ background: 'var(--surface)', color: 'var(--primary)', border: '1px solid var(--primary)' }}
         >
-            📄 Ver análise completa
+            📄 Ver Análise
         </button>
     );
 };

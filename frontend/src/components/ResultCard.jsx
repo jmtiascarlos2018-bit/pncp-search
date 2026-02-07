@@ -8,38 +8,52 @@ const ResultCard = ({ item }) => {
         ? new Date(item.dataPublicacao).toLocaleDateString('pt-BR')
         : 'Data não informada';
 
+    const getSourceClass = (source) => {
+        const s = (source || '').toLowerCase();
+        if (s.includes('pncp')) return 'source-pncp';
+        if (s.includes('transpar')) return 'source-pt';
+        if (s.includes('compras')) return 'source-comprasgov';
+        return 'source-pncp';
+    };
+
+    const sourceClass = getSourceClass(item.fonte);
+
     return (
-        <div className={styles.card}>
-            <div className={styles.header}>
-                <span className={styles.date}>{formattedDate}</span>
-                <span className={styles.uf}>{item.municipio} - {item.uf}</span>
+        <div className="result-card">
+            <span className={`result-source-badge ${sourceClass}`}>
+                {item.fonte || 'PNCP'}
+            </span>
+
+            <span className="result-date">{formattedDate}</span>
+
+            <h3 className="result-title">{item.objeto}</h3>
+
+            <div className="result-meta">
+                {item.municipio && <span className="meta-tag">📍 {item.municipio}-{item.uf}</span>}
+                <span className="meta-tag">🏢 {item.orgao}</span>
+                <span className="meta-tag">📋 {item.modalidade}</span>
             </div>
 
-            <h3 className={styles.title}>{item.objeto}</h3>
+            <div className="result-actions">
+                <a
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="action-btn"
+                >
+                    Link Original
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                </a>
 
-            <div className={styles.details}>
-                <p><strong>Órgão:</strong> {item.orgao}</p>
-                <p><strong>Modalidade:</strong> {item.modalidade}</p>
-                <p><strong>Fonte:</strong> {item.fonte || 'PNCP'}</p>
+                <BrainAnalysis bidData={item} customClass="btn-ai" />
             </div>
-
-            <a
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.linkButton}
-            >
-                {item.linkLabel || 'Ver no PNCP'}
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '5px' }}>
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
-            </a>
-
-            <BrainAnalysis bidData={item} />
-        </div >
+        </div>
     );
 };
+
 
 export default ResultCard;
