@@ -45,7 +45,7 @@ const pncpService = {
              */
 
             const MODALITIES = [6, 8, 4]; // 6=Pregão, 8=Dispensa, 4=Concorrência Eletrônica
-            const PAGES_TO_FETCH = 30;     // Increased to 30 pages (~4500 items total)
+            const PAGES_TO_FETCH = 2;     // Reduced to 2 pages to prevent Render Free Tier timeout (~300 items total)
             const ITEMS_PER_PAGE = 50;
             const CONCURRENT_LIMIT = 5;    // Batch requests to distinguish oneself from a DDoS attack
 
