@@ -9,7 +9,16 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+// Middleware
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://pncp-search-frontend.netlify.app', // Update if user has a different netlify URL
+        process.env.FRONTEND_URL // Allow custom env var
+    ],
+    credentials: true
+}));
 app.use(express.json());
 
 // Routes

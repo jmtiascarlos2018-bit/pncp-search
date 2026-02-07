@@ -2,11 +2,25 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 require('dotenv').config();
 
 // Inicializa o Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Inicializa o Gemini
+let genAI;
+try {
+    if (process.env.GEMINI_API_KEY) {
+        genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    } else {
+        console.warn("GEMINI_API_KEY not found. Analysis features will be disabled.");
+    }
+} catch (error) {
+    console.error("Error initializing Gemini:", error);
+}
+
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 
 const analyzeBid = async (bidData, userProfile) => {
     try {
+        if (!genAI) {
+            throw new Error("Gemini not initialized (missing API Key).");
+        }
         const model = genAI.getGenerativeModel({ model: DEFAULT_MODEL });
 
         // Preparar dados do perfil para o prompt
