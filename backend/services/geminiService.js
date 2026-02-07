@@ -35,21 +35,28 @@ const listModels = async () => {
     }
 };
 
+const MODELS_TO_TRY = [
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-001',
+    'gemini-1.5-pro',
+    'gemini-1.5-pro-001',
+    'gemini-1.0-pro',
+    'gemini-pro'
+];
+
 const analyzeBid = async (bidData, userProfile) => {
-    try {
-        if (!genAI) {
-            throw new Error("Gemini not initialized (missing API Key).");
-        }
-        const model = genAI.getGenerativeModel({ model: DEFAULT_MODEL });
+    if (!genAI) {
+        throw new Error("Gemini not initialized (missing API Key).");
+    }
 
-        // Preparar dados do perfil para o prompt
-        const documentosDoUsuario = userProfile.documents ? userProfile.documents.join(", ") : "Nenhum documento informado";
-        const ramoDoUsuario = userProfile.businessType || "Não informado";
+    // Preparar dados do perfil para o prompt
+    const documentosDoUsuario = userProfile.documents ? userProfile.documents.join(", ") : "Nenhum documento informado";
+    const ramoDoUsuario = userProfile.businessType || "Não informado";
 
-        // Preparar dados da licitação (simplificado para texto)
-        const dadosLicitacao = JSON.stringify(bidData, null, 2);
+    // Preparar dados da licitação (simplificado para texto)
+    const dadosLicitacao = JSON.stringify(bidData, null, 2);
 
-        const prompt = `
+    const prompt = `
     Persona: Especialista em licitações (Leis 14.133/8.666).
     Tarefa: Analisar licitação vs perfil.
     
@@ -71,36 +78,35 @@ const analyzeBid = async (bidData, userProfile) => {
     }
     `;
 
-        const result = await model.generateContent(prompt);
-        // `result.response` may be a Promise/stream-like object; ensure we await text
-        const response = await result.response;
-        const rawText = typeof response.text === 'function' ? await response.text() : String(response);
+    let lastError = null;
 
-        // Limpeza básica para garantir JSON válido (remover backticks se houver)
-        let jsonCandidate = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        // Tenta extrair o primeiro objeto JSON contido no texto (mais tolerante)
-        const jsonMatch = jsonCandidate.match(/(\{[\s\S]*\})/);
-        const toParse = jsonMatch ? jsonMatch[1] : jsonCandidate;
-
+    // Try models in sequence
+    for (const modelName of MODELS_TO_TRY) {
         try {
+            console.log(`Attempting analysis with model: ${modelName}`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const rawText = typeof response.text === 'function' ? await response.text() : String(response);
+
+            // Clean markdown
+            let jsonCandidate = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+            const jsonMatch = jsonCandidate.match(/(\{[\s\S]*\})/);
+            const toParse = jsonMatch ? jsonMatch[1] : jsonCandidate;
+
             const parsed = JSON.parse(toParse);
+            return parsed; // Success!
 
-            // Validação mínima do formato esperado
-            if (!parsed || typeof parsed !== 'object' || !parsed.match_perfil) {
-                console.warn('Gemini response parsed but missing expected keys:', Object.keys(parsed || {}));
-            }
-
-            return parsed;
-        } catch (parseError) {
-            console.error('Failed to parse Gemini response as JSON. Raw response (truncated):', jsonCandidate.slice(0, 1000));
-            throw new Error('Falha ao interpretar a resposta do motor generativo como JSON válido.');
+        } catch (error) {
+            console.warn(`Failed with ${modelName}: ${error.message}`);
+            lastError = error;
+            // Continue to next model
         }
-
-    } catch (error) {
-        console.error("Error in Gemini analysis:", error);
-        throw new Error("Falha na análise inteligente da licitação.");
     }
+
+    // If all failed
+    console.error("All Gemini models failed.");
+    throw lastError || new Error("Falha ao analisar com todos os modelos disponíveis.");
 };
 
 module.exports = { analyzeBid };
