@@ -15,7 +15,7 @@ try {
     console.error("Error initializing Gemini:", error);
 }
 
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash-001';
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
 const listAvailableModels = async () => {
     if (!process.env.GEMINI_API_KEY) {
@@ -41,7 +41,11 @@ const listAvailableModels = async () => {
 };
 
 const MODELS_TO_TRY = [
-    'gemini-1.5-flash',
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-001',
+    'gemini-2.5-flash',
+    'gemini-flash-latest',
+    'gemini-1.5-flash', // Mantendo como fallback caso mude
     'gemini-1.5-flash-001',
     'gemini-1.5-pro',
     'gemini-1.5-pro-001',
