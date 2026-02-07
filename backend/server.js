@@ -35,11 +35,53 @@ app.get('/api/debug/ai', async (req, res) => {
 
     res.json({
         config: {
-            configured_model: process.env.GEMINI_MODEL || 'gemini-1.5-flash-001',
+            configured_model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
             api_key_present: !!process.env.GEMINI_API_KEY,
             api_key_prefix: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 5) + '...' : 'N/A'
         },
         connectivity_check: modelCheck
+    });
+});
+
+// Debug endpoint for Search Sources
+app.get('/api/debug/sources', async (req, res) => {
+    const portalTransparenciaService = require('./services/portalTransparenciaService');
+    const comprasGovService = require('./services/comprasGovService');
+
+    const ptKeyPresent = !!process.env.PORTAL_TRANSPARENCIA_API_KEY;
+
+    // Test fetch to Compras.gov (simple query)
+    let comprasGovStatus = 'unknown';
+    let comprasGovData = null;
+    try {
+        const result = await comprasGovService.searchTenders({ q: 'caneta', page: 1 }); // Simple term
+        comprasGovStatus = result.data.length > 0 ? 'working' : 'empty_response';
+        comprasGovData = result.data.slice(0, 2);
+    } catch (e) {
+        comprasGovStatus = `error: ${e.message}`;
+    }
+
+    // Test fetch to Portal Transparencia (if key present)
+    let ptStatus = 'skipped (no key)';
+    if (ptKeyPresent) {
+        try {
+            const result = await portalTransparenciaService.searchTenders({ q: 'caneta', page: 1 });
+            ptStatus = result.data.length > 0 ? 'working' : 'empty_response';
+        } catch (e) {
+            ptStatus = `error: ${e.message}`;
+        }
+    }
+
+    res.json({
+        portal_transparencia: {
+            api_key_present: ptKeyPresent,
+            status: ptStatus
+        },
+        compras_gov: {
+            api_key_required: false,
+            status: comprasGovStatus,
+            sample_data: comprasGovData
+        }
     });
 });
 
