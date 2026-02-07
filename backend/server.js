@@ -28,10 +28,18 @@ app.get('/api/health', (req, res) => {
 });
 
 // Debug endpoint to check configured AI Model
-app.get('/api/debug/ai', (req, res) => {
+app.get('/api/debug/ai', async (req, res) => {
+    // Import dynamically to ensure we get the latest
+    const { listAvailableModels } = require('./services/geminiService');
+    const modelCheck = await listAvailableModels();
+
     res.json({
-        configured_model: process.env.GEMINI_MODEL || 'gemini-1.5-flash-001',
-        api_key_present: !!process.env.GEMINI_API_KEY
+        config: {
+            configured_model: process.env.GEMINI_MODEL || 'gemini-1.5-flash-001',
+            api_key_present: !!process.env.GEMINI_API_KEY,
+            api_key_prefix: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 5) + '...' : 'N/A'
+        },
+        connectivity_check: modelCheck
     });
 });
 

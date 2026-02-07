@@ -16,22 +16,26 @@ try {
 
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash-001';
 
-const listModels = async () => {
-    if (!genAI) {
-        throw new Error("Gemini not initialized (missing API Key).");
+const listAvailableModels = async () => {
+    if (!process.env.GEMINI_API_KEY) {
+        return { error: "API Key not found in environment variables" };
     }
     try {
-        // For google-generative-ai, we might need to use the model manager if available, 
-        // or just rely on the error message suggesting ListModels. 
-        // Actually the SDK doesn't always expose listModels directly on the main class in older versions,
-        // but let's try to access it via the API if possible or just return a static helpful message if not found.
-        // Checking documentation: genAI.getGenerativeModel is the main entry. 
-        // There isn't a direct listModels on GoogleGenerativeAI instance in some versions.
-        // Let's try to just return the configured model for now, but if we can, we should try to fetch.
-        // Since we can't easily list without the specific manager, let's just focus on the model change.
-        return { message: "Listing models requires specific API call not fully wrapper here yet." };
+        const response = await axios.get(
+            `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`
+        );
+        return {
+            success: true,
+            models: response.data.models.map(m => m.name) // Retorna apenas os nomes (ex: models/gemini-pro)
+        };
     } catch (error) {
-        return { error: error.message };
+        return {
+            success: false,
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            errorData: error.response?.data,
+            message: error.message
+        };
     }
 };
 
@@ -109,4 +113,4 @@ const analyzeBid = async (bidData, userProfile) => {
     throw lastError || new Error("Falha ao analisar com todos os modelos disponíveis.");
 };
 
-module.exports = { analyzeBid };
+module.exports = { analyzeBid, listAvailableModels };
