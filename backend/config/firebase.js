@@ -9,7 +9,7 @@ try {
     let credential;
 
     // Opção 1: Credenciais via variáveis de ambiente (mais seguro para deploy)
-    if (process.env.FIREBASE_PRIVATE_KEY) {
+    if (process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
         credential = admin.credential.cert({
             projectId: process.env.FIREBASE_PROJECT_ID,
             clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
@@ -18,9 +18,13 @@ try {
         });
     } else {
         // Opção 2: Arquivo local (para desenvolvimento)
-        // Certifique-se de que este arquivo esteja no .gitignore
-        const serviceAccount = require('../serviceAccountKey.json');
-        credential = admin.credential.cert(serviceAccount);
+        try {
+            const serviceAccount = require('../serviceAccountKey.json');
+            credential = admin.credential.cert(serviceAccount);
+        } catch (fileError) {
+            console.warn("Firebase serviceAccountKey.json not found and env vars missing. Firebase will NOT be initialized.");
+            throw new Error("Missing Firebase Credentials");
+        }
     }
 
     admin.initializeApp({
