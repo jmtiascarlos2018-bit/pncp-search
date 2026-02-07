@@ -63,3 +63,27 @@ export const subscribeAlert = async ({ email, q, uf, sources }) => {
 
     return response.json();
 };
+
+export const analyzeBid = async (analysisData) => {
+    const response = await fetch(`${API_URL}/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(analysisData)
+    });
+
+    if (!response.ok) {
+        throw new Error('Erro ao realizar análise');
+    }
+
+    return response.json();
+};
+
+export const getSystemStatus = async () => {
+    try {
+        const response = await fetch(`${API_URL}/status`);
+        return await response.json();
+    } catch (error) {
+        console.warn('Could not fetch system status:', error);
+        return null;
+    }
+};

@@ -27,6 +27,19 @@ app.get('/api/health', (req, res) => {
     res.json({ message: 'PNCP Search API is running' });
 });
 
+// System Status Endpoint (for debugging integrations)
+app.get('/api/status', (req, res) => {
+    res.json({
+        ai: !!process.env.GEMINI_API_KEY,
+        sources: {
+            pncp: true,
+            portal_transparencia: !!process.env.PORTAL_TRANSPARENCIA_API_KEY,
+            compras_gov: true
+        },
+        env: process.env.NODE_ENV || 'development'
+    });
+});
+
 // Root endpoint for Render Health Check
 app.get('/', (req, res) => {
     res.send('API is Online (Backend Only)');

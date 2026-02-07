@@ -43,9 +43,16 @@ exports.analyze = async (req, res) => {
 
     } catch (error) {
         console.error('Brain analyze error:', error.message);
+
+        let errorMessage = 'Erro interno ao processar inteligência.';
+
         if (error.message && error.message.includes('API Key')) {
             console.error('CRITICAL: GEMINI_API_KEY is missing or invalid in environment variables.');
+            errorMessage = 'Configuração de IA ausente no servidor (Falta GEMINI_API_KEY).';
+        } else if (error.message && error.message.includes('GoogleGenerativeAI Error')) {
+            errorMessage = 'Erro remoto no serviço de IA (Google Gemini).';
         }
-        res.status(500).json({ error: 'Erro interno ao processar inteligência (Verifique os logs do servidor).' });
+
+        res.status(500).json({ error: errorMessage, details: error.message });
     }
 };

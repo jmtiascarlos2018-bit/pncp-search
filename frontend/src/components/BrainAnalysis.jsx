@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { db } from '../services/firebase';
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from 'react-router-dom';
+import { analyzeBid } from '../services/api';
 
 const BrainAnalysis = ({ bidData }) => {
     const [analysis, setAnalysis] = useState(null);
@@ -28,20 +28,20 @@ const BrainAnalysis = ({ bidData }) => {
                 console.warn("Não foi possível carregar perfil localmente, enviando ID para backend tentar.", err);
             }
 
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
-            const response = await axios.post(`${API_URL}/api/analyze`, {
+            const data = await analyzeBid({
                 bidData,
                 userProfile,
                 userId: USER_ID
             });
 
-            setAnalysis(response.data);
-            navigate('/analysis', { state: { analysis: response.data, bidData } });
+            setAnalysis(data);
+            navigate('/analysis', { state: { analysis: data, bidData } });
         } catch (err) {
-            console.error(err);
-            setError("Falha ao gerar inteligência. Verifique se o backend está rodando e configurado.");
+            console.error("ANALYSIS ERROR:", err);
+            // Error handling tailored to the fetch API error or custom errors
+            setError(`Falha ao gerar inteligência. (${err.message})`);
         } finally {
+            console.log("Analysis finished (finally block reached).");
             setLoading(false);
         }
     };

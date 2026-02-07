@@ -31,34 +31,24 @@ const analyzeBid = async (bidData, userProfile) => {
         const dadosLicitacao = JSON.stringify(bidData, null, 2);
 
         const prompt = `
-    Persona: Você é o "Cérebro do LicitaPro", um especialista jurídico e analista de negócios sênior em licitações públicas brasileiras (Leis 14.133, 10.520 e 8.666).
-
-    Tarefa: Analisar dados de uma licitação e cruzar com o perfil do cliente para gerar inteligência comercial.
-
-    Entrada de Dados:
-    1. Perfil do Cliente:
-       - Ramo de Atividade: ${ramoDoUsuario}
-       - Documentos que possui: ${documentosDoUsuario}
+    Persona: Especialista em licitações (Leis 14.133/8.666).
+    Tarefa: Analisar licitação vs perfil.
     
-    2. Dados da Licitação:
+    Perfil:
+    - Ramo: ${ramoDoUsuario}
+    - Docs: ${documentosDoUsuario}
+    
+    Licitação:
     ${dadosLicitacao}
 
-    Instruções de Processamento:
-    - Análise de Match: Compare os requisitos (se visíveis no texto) com os documentos do cliente.
-    - Identificação de Nicho: Defina o setor.
-    - Resumo Executivo: Explique o objeto simples.
-    - Checklist: O que falta de documento (se possível deduzir).
-    - Viabilidade: Riscos.
-    - Estratégia: Sugestão de lance.
-
-    Formato de Saída (JSON Estrito, sem markdown, apenas o JSON):
+    Gere UM JSON (sem markdown):
     {
-      "match_perfil": { "nota": number (0-100), "o_que_falta": ["item1", "item2"] },
-      "nicho_identificado": "string",
-      "resumo_negocio": "string",
-      "dados_chave": { "valor_estimado": "string", "data_abertura": "string", "orgao": "string", "localidade": "string" },
-      "viabilidade_e_riscos": "string",
-      "estrategia_sugerida": "string"
+      "match_perfil": { "nota": 0-100, "o_que_falta": [] },
+      "nicho_identificado": "",
+      "resumo_negocio": "Resumo em 1 frase",
+      "dados_chave": { "valor_estimado": "", "data_abertura": "", "orgao": "", "localidade": "" },
+      "viabilidade_e_riscos": "Curto",
+      "estrategia_sugerida": "Curta"
     }
     `;
 
