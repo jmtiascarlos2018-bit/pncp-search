@@ -13,8 +13,8 @@ const ResultList = ({ data }) => {
 
     return (
         <div className={styles.list}>
-            {data.map((item) => (
-                <ResultCard key={item.id} item={item} />
+            {data.map((item, index) => (
+                <ResultCard key={item.id || index} item={item} />
             ))}
         </div>
     );
