@@ -53,6 +53,37 @@ const MODELS_TO_TRY = [
     'gemini-pro'
 ];
 
+// Helper function to try multiple models
+const analyzeWithFallback = async (prompt) => {
+    let lastError = null;
+
+    for (const modelName of MODELS_TO_TRY) {
+        try {
+            console.log(`Attempting analysis with model: ${modelName}`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const rawText = typeof response.text === 'function' ? await response.text() : String(response);
+
+            // Clean markdown
+            let jsonCandidate = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+            const jsonMatch = jsonCandidate.match(/(\{[\s\S]*\})/);
+            const toParse = jsonMatch ? jsonMatch[1] : jsonCandidate;
+
+            return JSON.parse(toParse); // Success!
+
+        } catch (error) {
+            console.warn(`Failed with ${modelName}: ${error.message}`);
+            lastError = error;
+            // Continue to next model
+        }
+    }
+
+    // If all failed
+    console.error("All Gemini models failed.");
+    throw lastError || new Error("Falha ao analisar com todos os modelos disponíveis.");
+};
+
 const analyzeBid = async (bidData, userProfile) => {
     if (!genAI) {
         throw new Error("Gemini not initialized (missing API Key).");
@@ -60,36 +91,72 @@ const analyzeBid = async (bidData, userProfile) => {
 
     // Preparar dados do perfil para o prompt
     const documentosDoUsuario = userProfile.documents ? userProfile.documents.join(", ") : "Nenhum documento informado";
-    // Helper function to try multiple models
-    const analyzeWithFallback = async (prompt) => {
-        let lastError = null;
+    const ramoDoUsuario = userProfile.businessType || "Não informado";
 
-        for (const modelName of MODELS_TO_TRY) {
-            try {
-                console.log(`Attempting analysis with model: ${modelName}`);
-                const model = genAI.getGenerativeModel({ model: modelName });
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                const rawText = typeof response.text === 'function' ? await response.text() : String(response);
+    // Preparar dados da licitação
+    const dadosLicitacao = JSON.stringify(bidData, null, 2);
 
-                // Clean markdown
-                let jsonCandidate = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-                const jsonMatch = jsonCandidate.match(/(\{[\s\S]*\})/);
-                const toParse = jsonMatch ? jsonMatch[1] : jsonCandidate;
+    const prompt = `
+    ATUE COMO: Um consultor de licitações de elite, especializado em Leis 14.133/21 e 8.666/93.
+    SEU OBJETIVO: Analisar esta oportunidade de licitação CRUZANDO com o perfil do cliente para entregar insights estratégicos, não apenas óbvios.
 
-                const parsed = JSON.parse(toParse);
-                return parsed; // Success!
+    DADOS DO CLIENTE (PERFIL):
+    - Ramo de Atividade: ${ramoDoUsuario}
+    - Documentação Disponível: ${documentosDoUsuario}
 
-            } catch (error) {
-                console.warn(`Failed with ${modelName}: ${error.message}`);
-                lastError = error;
-                // Continue to next model
-            }
-        }
+    DADOS DA OPORTUNIDADE (LICITAÇÃO/EDITAL):
+    ${dadosLicitacao}
 
-        // If all failed
-        console.error("All Gemini models failed.");
-        throw lastError || new Error("Falha ao analisar com todos os modelos disponíveis.");
-    };
+    DIRETRIZES DE ANÁLISE:
+    1. VALORES E VIABILIDADE: Tente inferir ou comentar sobre valores estimados se disponíveis ou preços de mercado para este objeto.
+    2. EDITAL E OBJETO: Analise a descrição do objeto com profundidade. O que *realmente* está sendo pedido? Há pegadinhas técnicas?
+    3. DICAS INTELIGENTES (Ouro): Dê dicas "de mestre" para vencer. Ex: "Busque impugnar se x estiver ausente", "Cuidado com a exigência y", "Este objeto geralmente requer atestado de z".
 
-    module.exports = { analyzeBid, listAvailableModels };
+    FORMATO DE SAÍDA (JSON PURO, SEM MARKDOWN):
+    {
+      "match_perfil": { 
+        "nota": 0-100, 
+        "justificativa": "Explicação curta do percentual",
+        "pontos_fortes": ["..."],
+        "o_que_falta": ["Documento X", "Capacidade Y"] 
+      },
+      "analise_financeira": {
+        "comentario_valores": "Analise se o valor é atrativo ou se há risco de inexequibilidade (se valor estiver visível), ou comente sobre margens típicas deste setor.",
+        "riscos_ocultos": ["Risco A", "Risco B"]
+      },
+      "analise_tecnica_objeto": "Resumo detalhado do que é o objeto e suas particularidades técnicas.",
+      "estrategia_vencedora": {
+        "dicas_inteligentes": ["Dica 1", "Dica 2", "Dica 3"],
+        "acao_imediata": "Qual o primeiro passo agora?"
+      },
+      "resumo_simples": "Resumo executivo em 1 frase para decisão rápida."
+    }
+    `;
+
+    try {
+        const jsonResult = await analyzeWithFallback(prompt);
+
+        // Mapear campos novos para manter compatibilidade com frontend
+        return {
+            match_percent: jsonResult.match_perfil?.nota || 0,
+            summary: jsonResult.resumo_simples || "Sem resumo.",
+            missing_docs: jsonResult.match_perfil?.o_que_falta || [],
+            risks: [
+                ...(jsonResult.analise_financeira?.riscos_ocultos || []),
+                jsonResult.analise_financeira?.comentario_valores
+            ].filter(Boolean).join('. '),
+            strategy: [
+                ...(jsonResult.estrategia_vencedora?.dicas_inteligentes || []),
+                `Ação: ${jsonResult.estrategia_vencedora?.acao_imediata || ''}`
+            ].join('\n'),
+            details: jsonResult.analise_tecnica_objeto || "",
+            raw_analysis: jsonResult
+        };
+
+    } catch (error) {
+        console.error("Erro na análise IA:", error);
+        throw error;
+    }
+};
+
+module.exports = { analyzeBid, listAvailableModels };
