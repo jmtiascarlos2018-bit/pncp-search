@@ -60,62 +60,36 @@ const analyzeBid = async (bidData, userProfile) => {
 
     // Preparar dados do perfil para o prompt
     const documentosDoUsuario = userProfile.documents ? userProfile.documents.join(", ") : "Nenhum documento informado";
-    const ramoDoUsuario = userProfile.businessType || "Não informado";
+    // Helper function to try multiple models
+    const analyzeWithFallback = async (prompt) => {
+        let lastError = null;
 
-    // Preparar dados da licitação (simplificado para texto)
-    const dadosLicitacao = JSON.stringify(bidData, null, 2);
+        for (const modelName of MODELS_TO_TRY) {
+            try {
+                console.log(`Attempting analysis with model: ${modelName}`);
+                const model = genAI.getGenerativeModel({ model: modelName });
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const rawText = typeof response.text === 'function' ? await response.text() : String(response);
 
-    const prompt = `
-    Persona: Especialista em licitações (Leis 14.133/8.666).
-    Tarefa: Analisar licitação vs perfil.
-    
-    Perfil:
-    - Ramo: ${ramoDoUsuario}
-    - Docs: ${documentosDoUsuario}
-    
-    Licitação:
-    ${dadosLicitacao}
+                // Clean markdown
+                let jsonCandidate = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const jsonMatch = jsonCandidate.match(/(\{[\s\S]*\})/);
+                const toParse = jsonMatch ? jsonMatch[1] : jsonCandidate;
 
-    Gere UM JSON (sem markdown):
-    {
-      "match_perfil": { "nota": 0-100, "o_que_falta": [] },
-      "nicho_identificado": "",
-      "resumo_negocio": "Resumo em 1 frase",
-      "dados_chave": { "valor_estimado": "", "data_abertura": "", "orgao": "", "localidade": "" },
-      "viabilidade_e_riscos": "Curto",
-      "estrategia_sugerida": "Curta"
-    }
-    `;
+                const parsed = JSON.parse(toParse);
+                return parsed; // Success!
 
-    let lastError = null;
-
-    // Try models in sequence
-    for (const modelName of MODELS_TO_TRY) {
-        try {
-            console.log(`Attempting analysis with model: ${modelName}`);
-            const model = genAI.getGenerativeModel({ model: modelName });
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const rawText = typeof response.text === 'function' ? await response.text() : String(response);
-
-            // Clean markdown
-            let jsonCandidate = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-            const jsonMatch = jsonCandidate.match(/(\{[\s\S]*\})/);
-            const toParse = jsonMatch ? jsonMatch[1] : jsonCandidate;
-
-            const parsed = JSON.parse(toParse);
-            return parsed; // Success!
-
-        } catch (error) {
-            console.warn(`Failed with ${modelName}: ${error.message}`);
-            lastError = error;
-            // Continue to next model
+            } catch (error) {
+                console.warn(`Failed with ${modelName}: ${error.message}`);
+                lastError = error;
+                // Continue to next model
+            }
         }
-    }
 
-    // If all failed
-    console.error("All Gemini models failed.");
-    throw lastError || new Error("Falha ao analisar com todos os modelos disponíveis.");
-};
+        // If all failed
+        console.error("All Gemini models failed.");
+        throw lastError || new Error("Falha ao analisar com todos os modelos disponíveis.");
+    };
 
-module.exports = { analyzeBid, listAvailableModels };
+    module.exports = { analyzeBid, listAvailableModels };
